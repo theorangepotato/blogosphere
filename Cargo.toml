@@ -1,0 +1,12 @@
+[package]
+name = "blogosphere"
+version = "0.1.0"
+authors = ["theorangepotato"]
+edition = "2018"
+description = "A simple, server-side-rendered RSS feed reader."
+readme = "README.md"
+keywords = ["rss", "feed", "atom", "blod", "server"]
+license = "AGPL-3.0-or-later"
+maintenance = {status = "actively-developed"}
+
+[dependencies]
