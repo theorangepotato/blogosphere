@@ -3,10 +3,10 @@ name = "blogosphere"
 version = "0.1.0"
 authors = ["theorangepotato"]
 edition = "2018"
-description = "A simple, server-side-rendered RSS feed reader."
+description = "A simple, single user, server-side-rendered RSS feed reader."
 readme = "README.md"
 keywords = ["rss", "feed", "atom", "blod", "server"]
 license = "AGPL-3.0-or-later"
-maintenance = {status = "actively-developed"}
 
 [dependencies]
+rss = {version = "1", features = ["from_url"]}
