@@ -10,3 +10,4 @@ license = "AGPL-3.0-or-later"
 
 [dependencies]
 rss = {version = "1", features = ["from_url"]}
+lazy_static = "1.4"
