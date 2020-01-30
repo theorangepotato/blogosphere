@@ -9,8 +9,14 @@ use toml;
 use std::collections::HashMap;
 
 #[derive(Deserialize)]
+struct Feed {
+    name: String,
+    url: String
+}
+
+#[derive(Deserialize)]
 struct ConfigFile {
-    feeds: HashMap<String, Vec<String>>
+    feeds: HashMap<String, Vec<Feed>>
 }
 
 lazy_static! {
@@ -32,7 +38,7 @@ fn construct_page(folder: &str, index: usize) -> String {
             for (folder, feeds) in &CONFIG.feeds {
                 navigation.push_str(format!("<li>{}</li><ul>", folder).as_str());
                 for feed in feeds {
-                    navigation.push_str(format!("<li>{}</li>", feed).as_str());
+                    navigation.push_str(format!("<li>{}</li>", feed.name).as_str());
                 }
                 navigation.push_str("</ul>");
             }
@@ -47,7 +53,7 @@ fn construct_page(folder: &str, index: usize) -> String {
         panic!("Not a valid feed!");
     }
 
-    let channel = Channel::from_url(&CONFIG.feeds[folder][index]).expect("Unable to load feed!");
+    let channel = Channel::from_url(&CONFIG.feeds[folder][index].url).expect(format!("Unable to load feed: {}", &CONFIG.feeds[folder][index].name).as_str());
     let mut page = PAGE_FILE.clone();
     replace(&mut page, &FEED, feed_to_html(&channel).as_str());
 
