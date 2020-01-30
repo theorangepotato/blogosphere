@@ -1,0 +1,15 @@
+[[feeds.comics]]
+name = "xkcd"
+url = "https://xkcd.com/rss.xml"
+
+[[feeds.comics]]
+name = "SMBC"
+url = "https://www.smbc-comics.com/comic/rss"
+
+[[feeds.news]]
+name = "New York Times"
+url = "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"
+
+[[feeds.news]]
+name = "Axios"
+url = "https://api.axios.com/feed/"
