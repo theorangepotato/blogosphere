@@ -13,30 +13,48 @@ struct ConfigFile {
     feeds: HashMap<String, Vec<String>>
 }
 
+lazy_static! {
+    static ref CONFIG: ConfigFile = toml::from_str(fs::read_to_string("config.toml").unwrap().as_str()).unwrap();
+}
+
 fn main() {
-    let config: ConfigFile = toml::from_str(fs::read_to_string("config.toml").unwrap().as_str()).unwrap();
-    let page = construct_page(&config, "comics", 0);
+    let page = construct_page("news", 1);
     print!("{}", page);
 }
 
-fn construct_page(config: &ConfigFile, folder: &str, index: usize) -> String {
-    const PAGE: &str = "{{PAGE}}";
+fn construct_page(folder: &str, index: usize) -> String {
+    const FEED: &str = "{{FEED}}";
+    const NAVIGATION: &str = "{{NAVIGATION}}";
     lazy_static! {
-        static ref PAGE_FILE: String = fs::read_to_string("templates/page.html").unwrap();
+        static ref PAGE_FILE: String = {
+            let mut page_file = fs::read_to_string("templates/page.html").unwrap();
+            let mut navigation = String::from("<ul>");
+            for (folder, feeds) in &CONFIG.feeds {
+                navigation.push_str(format!("<li>{}</li><ul>", folder).as_str());
+                for feed in feeds {
+                    navigation.push_str(format!("<li>{}</li>", feed).as_str());
+                }
+                navigation.push_str("</ul>");
+            }
+            navigation.push_str("</ul>");
+            replace(&mut page_file, &NAVIGATION, navigation.as_str());
+
+            page_file
+        };
     }
 
-    if !(config.feeds.contains_key(folder) && config.feeds[folder].len() > index) {
+    if !(CONFIG.feeds.contains_key(folder) && CONFIG.feeds[folder].len() > index) {
         panic!("Not a valid feed!");
     }
 
-    let channel = Channel::from_url(&config.feeds[folder][index]).expect("Unable to load feed!");
+    let channel = Channel::from_url(&CONFIG.feeds[folder][index]).expect("Unable to load feed!");
     let mut page = PAGE_FILE.clone();
-    replace(&mut page, &PAGE, channel_to_html(&channel).as_str());
+    replace(&mut page, &FEED, feed_to_html(&channel).as_str());
 
     page
 }
 
-fn channel_to_html(channel: &Channel) -> String {
+fn feed_to_html(channel: &Channel) -> String {
     const TITLE: &str = "{{TITLE}}";
     const FEED: &str = "{{FEED}}";
     lazy_static! {
