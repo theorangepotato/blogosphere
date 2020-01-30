@@ -19,16 +19,22 @@ struct ConfigFile {
     feeds: HashMap<String, Vec<Feed>>
 }
 
+enum Page {
+    Home,
+    About,
+    Feed {folder: String, index: usize}
+}
+
 lazy_static! {
     static ref CONFIG: ConfigFile = toml::from_str(fs::read_to_string("config.toml").unwrap().as_str()).unwrap();
 }
 
 fn main() {
-    let page = construct_page("news", 1);
+    let page = page_to_html(&Page::Feed{folder: "news".to_string(), index: 1});
     print!("{}", page);
 }
 
-fn construct_page(folder: &str, index: usize) -> String {
+fn page_to_html(page_requested: &Page) -> String {
     const FEED: &str = "{{FEED}}";
     const NAVIGATION: &str = "{{NAVIGATION}}";
     lazy_static! {
@@ -47,15 +53,29 @@ fn construct_page(folder: &str, index: usize) -> String {
 
             page_file
         };
+        static ref HOME_FILE: String = fs::read_to_string("templates/home.html").unwrap();
+        static ref ABOUT_FILE: String = fs::read_to_string("templates/about.html").unwrap();
     }
 
-    if !(CONFIG.feeds.contains_key(folder) && CONFIG.feeds[folder].len() > index) {
-        panic!("Not a valid feed!");
-    }
-
-    let channel = Channel::from_url(&CONFIG.feeds[folder][index].url).expect(format!("Unable to load feed: {}", &CONFIG.feeds[folder][index].name).as_str());
     let mut page = PAGE_FILE.clone();
-    replace(&mut page, &FEED, feed_to_html(&channel).as_str());
+
+    match page_requested {
+        Page::Home => {
+            replace(&mut page, &FEED, &HOME_FILE.as_str());
+        }
+        Page::About => {
+            replace(&mut page, &FEED, &ABOUT_FILE.as_str());
+        }
+        Page::Feed{folder, index} => {
+            let index = *index;
+            if !(CONFIG.feeds.contains_key(folder) && CONFIG.feeds[folder].len() > index) {
+                panic!("Not a valid feed!");
+            }
+
+            let channel = Channel::from_url(&CONFIG.feeds[folder][index].url).expect(format!("Unable to load feed: {}", &CONFIG.feeds[folder][index].name).as_str());
+            replace(&mut page, &FEED, feed_to_html(&channel).as_str());
+        }
+    }
 
     page
 }
@@ -73,7 +93,7 @@ fn feed_to_html(channel: &Channel) -> String {
     let mut feed = String::new();
     let mut item_odd = true;
     for item in channel.items() {
-        feed.push_str(print_item(&item, item_odd).as_str());
+        feed.push_str(feed_item_to_html(&item, item_odd).as_str());
         item_odd = !item_odd;
     }
     replace(&mut feed_file, &FEED, &feed.as_str());
@@ -81,7 +101,7 @@ fn feed_to_html(channel: &Channel) -> String {
     feed_file
 }
 
-fn print_item(item: &Item, item_odd: bool) -> String {
+fn feed_item_to_html(item: &Item, item_odd: bool) -> String {
     const CLASS: &str = "{{CLASS}}";
     const LINK: &str = "{{LINK}}";
     const TITLE: &str = "{{TITLE}}";
