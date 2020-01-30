@@ -28,6 +28,7 @@ body {
 	border: solid;
 	border-width: 4px;
 	border-color: black;
+	font-family: monospace, monospace;
 }
 
 #content {
@@ -73,4 +74,9 @@ a:hover, a:active {
 .headerItem {
 	display: inline-block;
 	margin: 5px 30px;
+}
+
+#feedTitle {
+	font-family: monospace, monospace;
+	padding-left: 40px;
 }
