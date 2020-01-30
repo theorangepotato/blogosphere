@@ -1,3 +1,5 @@
+root = "static/"
+
 [[feeds.comics]]
 name = "xkcd"
 url = "https://xkcd.com/rss.xml"

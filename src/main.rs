@@ -16,6 +16,7 @@ struct Feed {
 
 #[derive(Deserialize)]
 struct ConfigFile {
+    root: String,
     feeds: HashMap<String, Vec<Feed>>
 }
 
@@ -39,7 +40,7 @@ fn page_to_html(page_requested: &Page) -> String {
     const NAVIGATION: &str = "{{NAVIGATION}}";
     lazy_static! {
         static ref PAGE_FILE: String = {
-            let mut page_file = fs::read_to_string("templates/page.html").unwrap();
+            let mut page_file = fs::read_to_string(file_path("templates/page.html")).unwrap();
             let mut navigation = String::from("<ul>");
             for (folder, feeds) in &CONFIG.feeds {
                 navigation.push_str(format!("<li>{}</li><ul>", folder).as_str());
@@ -53,8 +54,8 @@ fn page_to_html(page_requested: &Page) -> String {
 
             page_file
         };
-        static ref HOME_FILE: String = fs::read_to_string("templates/home.html").unwrap();
-        static ref ABOUT_FILE: String = fs::read_to_string("templates/about.html").unwrap();
+        static ref HOME_FILE: String = fs::read_to_string(file_path("templates/home.html")).unwrap();
+        static ref ABOUT_FILE: String = fs::read_to_string(file_path("templates/about.html")).unwrap();
     }
 
     let mut page = PAGE_FILE.clone();
@@ -84,7 +85,7 @@ fn feed_to_html(channel: &Channel) -> String {
     const TITLE: &str = "{{TITLE}}";
     const FEED: &str = "{{FEED}}";
     lazy_static! {
-        static ref FEED_FILE: String = fs::read_to_string("templates/feed.html").unwrap();
+        static ref FEED_FILE: String = fs::read_to_string(file_path("templates/feed.html")).unwrap();
     }
 
     let mut feed_file = FEED_FILE.clone();
@@ -107,7 +108,7 @@ fn feed_item_to_html(item: &Item, item_odd: bool) -> String {
     const TITLE: &str = "{{TITLE}}";
     const CONTENT: &str = "{{CONTENT}}";
     lazy_static! {
-        static ref ITEM_FILE: String = fs::read_to_string("templates/item.html").unwrap();
+        static ref ITEM_FILE: String = fs::read_to_string(file_path("templates/item.html")).unwrap();
     }
 
     let mut item_file = ITEM_FILE.clone();
@@ -122,4 +123,9 @@ fn feed_item_to_html(item: &Item, item_odd: bool) -> String {
 fn replace(source: &mut String, pattern: &str, replacement: &str) {
     let start = source.find(&pattern).unwrap();
     source.replace_range(start..(start + pattern.len()), replacement);
+}
+
+#[inline]
+fn file_path (relative_path: & str) -> String {
+    format!("{}{}", &CONFIG.root, relative_path)
 }
