@@ -1,25 +1,37 @@
 #[macro_use]
 extern crate lazy_static;
 
+use serde::Deserialize;
 use std::fs;
 use rss::{Channel, Item};
 use std::vec::Vec;
+use toml;
+use std::collections::HashMap;
+
+#[derive(Deserialize)]
+struct ConfigFile {
+    feeds: HashMap<String, Vec<String>>
+}
 
 fn main() {
-    let mut channels = Vec::new();
-    channels.push(Channel::from_url("https://xkcd.com/rss.xml").unwrap());
-    let page = construct_page(&channels);
+    let config: ConfigFile = toml::from_str(fs::read_to_string("config.toml").unwrap().as_str()).unwrap();
+    let page = construct_page(&config, "comics", 0);
     print!("{}", page);
 }
 
-fn construct_page(channels: &Vec<Channel>) -> String {
+fn construct_page(config: &ConfigFile, folder: &str, index: usize) -> String {
     const PAGE: &str = "{{PAGE}}";
     lazy_static! {
         static ref PAGE_FILE: String = fs::read_to_string("templates/page.html").unwrap();
     }
 
+    if !(config.feeds.contains_key(folder) && config.feeds[folder].len() > index) {
+        panic!("Not a valid feed!");
+    }
+
+    let channel = Channel::from_url(&config.feeds[folder][index]).expect("Unable to load feed!");
     let mut page = PAGE_FILE.clone();
-    replace(&mut page, &PAGE, channel_to_html(&channels[0]).as_str());
+    replace(&mut page, &PAGE, channel_to_html(&channel).as_str());
 
     page
 }
