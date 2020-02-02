@@ -73,15 +73,16 @@ fn page_to_html(page_requested: &Page) -> String {
                 panic!("Not a valid feed!");
             }
 
-            let channel = Channel::from_url(&CONFIG.feeds[folder][index].url).expect(format!("Unable to load feed: {}", &CONFIG.feeds[folder][index].name).as_str());
-            replace(&mut page, &FEED, feed_to_html(&channel).as_str());
+            let feed = &CONFIG.feeds[folder][index];
+            let channel = Channel::from_url(&feed.url).expect(format!("Unable to load feed: {}", &feed.name).as_str());
+            replace(&mut page, &FEED, feed_to_html(channel.title(), channel.items()).as_str());
         }
     }
 
     page
 }
 
-fn feed_to_html(channel: &Channel) -> String {
+fn feed_to_html(title: &str, items: &[Item]) -> String {
     const TITLE: &str = "{{TITLE}}";
     const FEED: &str = "{{FEED}}";
     lazy_static! {
@@ -89,11 +90,11 @@ fn feed_to_html(channel: &Channel) -> String {
     }
 
     let mut feed_file = FEED_FILE.clone();
-    replace(&mut feed_file, &TITLE, channel.title());
+    replace(&mut feed_file, &TITLE, title);
 
     let mut feed = String::new();
     let mut item_odd = true;
-    for item in channel.items() {
+    for item in items {
         feed.push_str(feed_item_to_html(&item, item_odd).as_str());
         item_odd = !item_odd;
     }
