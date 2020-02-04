@@ -9,6 +9,8 @@ keywords = ["rss", "feed", "atom", "blod", "server"]
 license = "AGPL-3.0-or-later"
 
 [dependencies]
+actix-rt = "1"
+actix-web = "2"
 rss = {version = "1", features = ["from_url"]}
 lazy_static = "1.4"
 toml = "0.5"

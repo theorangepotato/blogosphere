@@ -17,8 +17,8 @@ pub fn page_to_html(page_requested: &Page) -> String {
             let mut navigation = String::from("<ul>");
             for (folder, feeds) in &CONFIG.feeds {
                 navigation.push_str(format!("<li>{}</li><ul>", folder).as_str());
-                for feed in feeds {
-                    navigation.push_str(format!("<li>{}</li>", feed.name).as_str());
+                for feed_index in 0..feeds.len() {
+                    navigation.push_str(format!("<li><a href=\"/{}/{}/\">{}</a></li>", folder, feed_index, feeds[feed_index].name).as_str());
                 }
                 navigation.push_str("</ul>");
             }
