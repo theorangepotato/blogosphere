@@ -1,4 +1,5 @@
 use super::CONFIG;
+use crate::util::file_path;
 use std::fs;
 use rss::{Channel, Item};
 
@@ -97,9 +98,4 @@ fn feed_item_to_html(item: &Item, item_odd: bool) -> String {
 fn replace(source: &mut String, pattern: &str, replacement: &str) {
     let start = source.find(&pattern).unwrap();
     source.replace_range(start..(start + pattern.len()), replacement);
-}
-
-#[inline]
-fn file_path (relative_path: & str) -> String {
-    format!("{}{}", &CONFIG.root, relative_path)
 }

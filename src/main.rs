@@ -2,6 +2,7 @@
 extern crate lazy_static;
 
 mod html;
+mod util;
 
 use actix_web::http::StatusCode;
 use actix_web::{get, web, App, HttpServer, HttpResponse, Responder, Result};
@@ -10,21 +11,22 @@ use std::collections::HashMap;
 use std::fs;
 use std::vec::Vec;
 use toml;
+use util::file_path;
 
 #[derive(Deserialize)]
-pub struct Feed {
+struct Feed {
     name: String,
     url: String
 }
 
 #[derive(Deserialize)]
-pub struct ConfigFile {
+struct ConfigFile {
     root: String,
     feeds: HashMap<String, Vec<Feed>>
 }
 
 lazy_static! {
-    pub static ref CONFIG: ConfigFile = toml::from_str(fs::read_to_string("config.toml").unwrap().as_str()).unwrap();
+    static ref CONFIG: ConfigFile = toml::from_str(fs::read_to_string("config.toml").unwrap().as_str()).unwrap();
 }
 
 #[get("/")]
@@ -43,7 +45,7 @@ async fn return_about() -> Result<HttpResponse> {
 
 #[get("/style.css")]
 async fn return_css() -> impl Responder {
-    fs::read_to_string("static/style.css").unwrap()
+    fs::read_to_string(file_path("style.css")).unwrap()
 }
 
 #[get("/{folder}/{index}/")]
