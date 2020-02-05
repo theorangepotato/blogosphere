@@ -22,6 +22,8 @@ struct Feed {
 #[derive(Deserialize)]
 struct ConfigFile {
     root: String,
+    ip: String,
+    port: String,
     feeds: HashMap<String, Vec<Feed>>
 }
 
@@ -62,7 +64,7 @@ async fn main() -> std::io::Result<()> {
                     .service(return_about)
                     .service(return_css)
                     .service(return_feed))
-        .bind("127.0.0.1:8080")?
+        .bind((CONFIG.ip.as_str(), CONFIG.port.parse::<u16>().unwrap()))?
         .run()
         .await
 }
