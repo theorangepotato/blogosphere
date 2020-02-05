@@ -1,6 +1,6 @@
 [package]
 name = "blogosphere"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["theorangepotato"]
 edition = "2018"
 description = "A simple, single user, server-side-rendered RSS feed reader."
