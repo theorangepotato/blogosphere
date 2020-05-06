@@ -9,29 +9,35 @@ pub enum Page {
     Feed {folder: String, index: usize}
 }
 
-pub fn page_to_html(page_requested: &Page) -> String {
-    const FEED: &str = "{{FEED}}";
-    const NAVIGATION: &str = "{{NAVIGATION}}";
-    lazy_static! {
-        static ref PAGE_FILE: String = {
-            let mut page_file = fs::read_to_string(file_path("templates/page.html")).unwrap();
-            let mut navigation = String::from("<ul>");
-            for (folder, feeds) in &CONFIG.feeds {
-                navigation.push_str(format!("<li>{}</li><ul>", folder).as_str());
-                for feed_index in 0..feeds.len() {
-                    navigation.push_str(format!("<li><a href=\"/{}/{}/\">{}</a></li>", folder, feed_index, feeds[feed_index].name).as_str());
-                }
-                navigation.push_str("</ul>");
+const TITLE: &str = "{{TITLE}}";
+const FEED: &str = "{{FEED}}";
+const NAVIGATION: &str = "{{NAVIGATION}}";
+const CLASS: &str = "{{CLASS}}";
+const LINK: &str = "{{LINK}}";
+const CONTENT: &str = "{{CONTENT}}";
+lazy_static! {
+    static ref PAGE_FILE: String = {
+        let mut page_file = fs::read_to_string(file_path("templates/page.html")).unwrap();
+        let mut navigation = String::from("<ul>");
+        for (folder, feeds) in &CONFIG.feeds {
+            navigation.push_str(format!("<li>{}</li><ul>", folder).as_str());
+            for feed_index in 0..feeds.len() {
+                navigation.push_str(format!("<li><a href=\"/{}/{}/\">{}</a></li>", folder, feed_index, feeds[feed_index].name).as_str());
             }
             navigation.push_str("</ul>");
-            replace(&mut page_file, &NAVIGATION, navigation.as_str());
+        }
+        navigation.push_str("</ul>");
+        replace(&mut page_file, &NAVIGATION, navigation.as_str());
 
-            page_file
-        };
-        static ref HOME_FILE: String = fs::read_to_string(file_path("templates/home.html")).unwrap();
-        static ref ABOUT_FILE: String = fs::read_to_string(file_path("templates/about.html")).unwrap();
-    }
+        page_file
+    };
+    static ref HOME_FILE: String = fs::read_to_string(file_path("templates/home.html")).unwrap();
+    static ref ABOUT_FILE: String = fs::read_to_string(file_path("templates/about.html")).unwrap();
+    static ref FEED_FILE: String = fs::read_to_string(file_path("templates/feed.html")).unwrap();
+    static ref ITEM_FILE: String = fs::read_to_string(file_path("templates/item.html")).unwrap();
+}
 
+pub fn page_to_html(page_requested: &Page) -> String {
     let mut page = PAGE_FILE.clone();
 
     match page_requested {
@@ -57,12 +63,6 @@ pub fn page_to_html(page_requested: &Page) -> String {
 }
 
 fn feed_to_html(title: &str, items: &[Item]) -> String {
-    const TITLE: &str = "{{TITLE}}";
-    const FEED: &str = "{{FEED}}";
-    lazy_static! {
-        static ref FEED_FILE: String = fs::read_to_string(file_path("templates/feed.html")).unwrap();
-    }
-
     let mut feed_file = FEED_FILE.clone();
     replace(&mut feed_file, &TITLE, title);
 
@@ -78,14 +78,6 @@ fn feed_to_html(title: &str, items: &[Item]) -> String {
 }
 
 fn feed_item_to_html(item: &Item, item_odd: bool) -> String {
-    const CLASS: &str = "{{CLASS}}";
-    const LINK: &str = "{{LINK}}";
-    const TITLE: &str = "{{TITLE}}";
-    const CONTENT: &str = "{{CONTENT}}";
-    lazy_static! {
-        static ref ITEM_FILE: String = fs::read_to_string(file_path("templates/item.html")).unwrap();
-    }
-
     let mut item_file = ITEM_FILE.clone();
     replace(&mut item_file, &CLASS, if item_odd {"item1"} else {"item2"});
     replace(&mut item_file, &LINK, item.link().unwrap());
