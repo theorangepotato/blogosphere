@@ -1,19 +1,52 @@
+:root {
+    --text: #000000;
+    --background: #deeaee;
+    --altBackground: #b1cbbb;
+    --border: #000000;
+    --link: #000000;
+    --visitedLink: #707070;
+    --linkHover: var(--link);
+    --linkHoverBackground: #eea29a;
+    --headerBackground: #eea29a;
+    --headerLink: #000000;
+    --headerLinkHover: #ffffff;
+    --headerLinkHoverBackground: #c94c4c;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text: hsl(220, 14%, 71%);
+        --background: hsl(220, 13%, 18%);
+	--altBackground: #21242b;
+        --border: var(--background);
+        --link: var(--text);
+        --visitedLink: hsl(286, 60%, 67%);
+        --linkHover: var(--background);
+        --linkHoverBackground: hsl(220, 9%, 55%);
+        --headerBackground: var(--background);
+        --headerLink: var(--text);
+        --headerLinkHover: var(--linkHover);
+        --headerLinkHoverBackground: var(--linkHoverBackground);
+    }
+}
+
 body {
 	margin: 0;
-	background-color: #deeaee;
+	color: var(--text);
+	background-color: var(--background);
 }
 
 .itemContainer {
-	padding: 5px 20px 5px 20px;
+	padding: 10px 20px 10px 20px;
 	max-width: 1100px;
 }
 
 .item1 {
-	background-color: #deeaee;
+	background-color: var(--background);
 }
 
 .item2 {
-	background-color: #b1cbbb;
+	background-color: var(--altBackground);
 }
 
 #navigation {
@@ -24,10 +57,10 @@ body {
 	float: left;
 	overflow-x: hidden;
 	padding-top: 20px;
-	background-color: #deeaee;
+	background-color: var(--background);
 	border: solid;
 	border-width: 4px;
-	border-color: black;
+	border-color: var(--border);
 	font-family: monospace, monospace;
 }
 
@@ -37,15 +70,16 @@ body {
 }
 
 a:link {
-	color: black;
+	color: var(--link);
 }
 
 a:visited {
-	color: #707070;
+	color: var(--visitedLink);
 }
 
 a:hover, a:active {
-	background-color: #eea29a;
+	background-color: var(--linkHoverBackground);
+	color: var(--linkHover);
 }
 
 #header {
@@ -59,16 +93,16 @@ a:hover, a:active {
 	font-family: monospace, monospace;
 	font-weight: bold;
 	text-decoration: none;
-	background-color: #eea29a;
+	background-color: var(--headerBackground);
 }
 
 #header a {
-	color: black;
+	color: var(--headerLink);
 }
 
 #header a:hover, a:active {
-	color: white;
-	background-color: #c94c4c;
+	color: var(--headerLinkHover);
+	background-color: var(--headerLinkHoverBackground);
 }
 
 .headerItem {
