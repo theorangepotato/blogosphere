@@ -5,7 +5,7 @@ mod html;
 mod util;
 
 use actix_web::http::StatusCode;
-use actix_web::{get, web, App, HttpServer, HttpResponse, Responder, Result};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder, Result};
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
@@ -16,7 +16,7 @@ use util::file_path;
 #[derive(Deserialize)]
 struct Feed {
     name: String,
-    url: String
+    url: String,
 }
 
 #[derive(Deserialize)]
@@ -24,25 +24,26 @@ struct ConfigFile {
     root: String,
     ip: String,
     port: String,
-    feeds: HashMap<String, Vec<Feed>>
+    feeds: HashMap<String, Vec<Feed>>,
 }
 
 lazy_static! {
-    static ref CONFIG: ConfigFile = toml::from_str(fs::read_to_string("config.toml").unwrap().as_str()).unwrap();
+    static ref CONFIG: ConfigFile =
+        toml::from_str(fs::read_to_string("config.toml").unwrap().as_str()).unwrap();
 }
 
 #[get("/")]
 async fn return_home() -> Result<HttpResponse> {
     Ok(HttpResponse::build(StatusCode::OK)
-       .content_type("text/html; charset=utf-8")
-       .body(html::page_to_html(&html::Page::Home)))
+        .content_type("text/html; charset=utf-8")
+        .body(html::page_to_html(&html::Page::Home)))
 }
 
 #[get("/about.html")]
 async fn return_about() -> Result<HttpResponse> {
     Ok(HttpResponse::build(StatusCode::OK)
-       .content_type("text/html; charset=utf-8")
-       .body(html::page_to_html(&html::Page::About)))
+        .content_type("text/html; charset=utf-8")
+        .body(html::page_to_html(&html::Page::About)))
 }
 
 #[get("/style.css")]
@@ -53,18 +54,23 @@ async fn return_css() -> impl Responder {
 #[get("/{folder}/{index}/")]
 async fn return_feed(info: web::Path<(String, usize)>) -> Result<HttpResponse> {
     Ok(HttpResponse::build(StatusCode::OK)
-       .content_type("text/html; charset=utf-8")
-       .body(html::page_to_html(&html::Page::Feed{folder : info.0.clone(), index : info.1})))
+        .content_type("text/html; charset=utf-8")
+        .body(html::page_to_html(&html::Page::Feed {
+            folder: info.0.clone(),
+            index: info.1,
+        })))
 }
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new()
-                    .service(return_home)
-                    .service(return_about)
-                    .service(return_css)
-                    .service(return_feed))
-        .bind((CONFIG.ip.as_str(), CONFIG.port.parse::<u16>().unwrap()))?
-        .run()
-        .await
+    HttpServer::new(|| {
+        App::new()
+            .service(return_home)
+            .service(return_about)
+            .service(return_css)
+            .service(return_feed)
+    })
+    .bind((CONFIG.ip.as_str(), CONFIG.port.parse::<u16>().unwrap()))?
+    .run()
+    .await
 }

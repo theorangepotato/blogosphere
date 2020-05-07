@@ -1,12 +1,12 @@
 use super::CONFIG;
 use crate::util::file_path;
-use std::fs;
 use rss::{Channel, Item};
+use std::fs;
 
 pub enum Page {
     Home,
     About,
-    Feed {folder: String, index: usize}
+    Feed { folder: String, index: usize },
 }
 
 const TITLE: &str = "{{TITLE}}";
@@ -22,7 +22,13 @@ lazy_static! {
         for (folder, feeds) in &CONFIG.feeds {
             navigation.push_str(format!("<li>{}</li><ul>", folder).as_str());
             for feed_index in 0..feeds.len() {
-                navigation.push_str(format!("<li><a href=\"/{}/{}/\">{}</a></li>", folder, feed_index, feeds[feed_index].name).as_str());
+                navigation.push_str(
+                    format!(
+                        "<li><a href=\"/{}/{}/\">{}</a></li>",
+                        folder, feed_index, feeds[feed_index].name
+                    )
+                    .as_str(),
+                );
             }
             navigation.push_str("</ul>");
         }
@@ -47,15 +53,20 @@ pub fn page_to_html(page_requested: &Page) -> String {
         Page::About => {
             replace(&mut page, &FEED, &ABOUT_FILE.as_str());
         }
-        Page::Feed{folder, index} => {
+        Page::Feed { folder, index } => {
             let index = *index;
             if !(CONFIG.feeds.contains_key(folder) && CONFIG.feeds[folder].len() > index) {
                 panic!("Not a valid feed!");
             }
 
             let feed = &CONFIG.feeds[folder][index];
-            let channel = Channel::from_url(&feed.url).expect(format!("Unable to load feed: {}", &feed.name).as_str());
-            replace(&mut page, &FEED, feed_to_html(channel.title(), channel.items()).as_str());
+            let channel = Channel::from_url(&feed.url)
+                .expect(format!("Unable to load feed: {}", &feed.name).as_str());
+            replace(
+                &mut page,
+                &FEED,
+                feed_to_html(channel.title(), channel.items()).as_str(),
+            );
         }
     }
 
@@ -79,7 +90,11 @@ fn feed_to_html(title: &str, items: &[Item]) -> String {
 
 fn feed_item_to_html(item: &Item, item_odd: bool) -> String {
     let mut item_file = ITEM_FILE.clone();
-    replace(&mut item_file, &CLASS, if item_odd {"item1"} else {"item2"});
+    replace(
+        &mut item_file,
+        &CLASS,
+        if item_odd { "item1" } else { "item2" },
+    );
     replace(&mut item_file, &LINK, item.link().unwrap());
     replace(&mut item_file, &TITLE, item.title().unwrap());
     replace(&mut item_file, &CONTENT, item.description().unwrap());
